@@ -1,0 +1,12 @@
+#!/bin/bash
+
+
+# copy default settings if there is no config file
+if [ ! -f $SNAP_COMMON/etc/cntlm.conf ]; then
+    mkdir $SNAP_COMMON/etc
+    cp $SNAP/etc/cntlm.conf $SNAP_COMMON/etc/
+fi
+
+if [ ! -d $SNAP_COMMON/etc/default ]; then
+    cp -r $SNAP/etc/default $SNAP_COMMON/etc
+fi
