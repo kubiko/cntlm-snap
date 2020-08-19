@@ -6,6 +6,7 @@ description: |
 
 confinement: strict
 grade: stable
+base: core18
 
 apps:
 
@@ -14,21 +15,27 @@ apps:
         stop-command: etc/init.d/cntlm stop
         plugs: [network, network-bind]
         daemon: simple
+
     start:
         command: etc/init.d/cntlm start
         plugs: [network, network-bind]
+
     restart:
         command: etc/init.d/cntlm restart
         plugs: [network, network-bind]
+
     status:
         command: etc/init.d/cntlm status
+
     stop:
         command: etc/init.d/cntlm stop
 
 parts:
     proxy:
         plugin: nil
-        stage-packages: [cntlm, dpkg]
+        stage-packages:
+          - cntlm
+          - dpkg
         install: |
             sed -i 's|PATH=|PATH=$PATH:|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
             sed -i 's|DAEMON=|DAEMON=$SNAP|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
