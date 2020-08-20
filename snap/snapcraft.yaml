@@ -46,7 +46,7 @@ parts:
         stage-packages:
           - cntlm
           - dpkg
-        install: |
+        override-build: |
             sed -i 's|PATH=|PATH=$PATH:|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
             sed -i 's|DAEMON=|DAEMON=$SNAP|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
             sed -i 's|PIDFILE=/var/run/cntlm|PIDFILE=$SNAP_DATA/run|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
