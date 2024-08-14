@@ -1,59 +1,61 @@
 name: cntlm-ondra
-version: "0.92.3"
 summary: cntlm proxy authenticator
 description: |
  cntlm proxy authenticator
 
 confinement: strict
 grade: stable
-base: core18
+base: core24
+adopt-info: proxy
 
-architectures:
-  - build-on: armhf
-    run-on: armhf
-  - build-on: arm64
-    run-on: arm64
-  - build-on: amd64
-    run-on: amd64
-  - build-on: i386
-    run-on: i386
+platforms:
+  armhf:
+  arm64:
+  amd64:
 
 apps:
+  cntlm:
+    command: etc/init.d/cntlm start
+    stop-command: etc/init.d/cntlm stop
+    plugs:
+      - network
+      - network-bind
+    daemon: simple
 
-    cntlm:
-        command: etc/init.d/cntlm start
-        stop-command: etc/init.d/cntlm stop
-        plugs: [network, network-bind]
-        daemon: simple
+  start:
+    command: etc/init.d/cntlm start
+    plugs:
+      - network
+      - network-bind
 
-    start:
-        command: etc/init.d/cntlm start
-        plugs: [network, network-bind]
+  restart:
+    command: etc/init.d/cntlm restart
+    plugs:
+      - network
+      - network-bind
 
-    restart:
-        command: etc/init.d/cntlm restart
-        plugs: [network, network-bind]
+  status:
+    command: etc/init.d/cntlm status
 
-    status:
-        command: etc/init.d/cntlm status
-
-    stop:
-        command: etc/init.d/cntlm stop
+  stop:
+    command: etc/init.d/cntlm stop
 
 parts:
-    proxy:
-        plugin: nil
-        stage-packages:
-          - cntlm
-          - dpkg
-        override-build: |
-            sed -i 's|PATH=|PATH=$PATH:|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
-            sed -i 's|DAEMON=|DAEMON=$SNAP|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
-            sed -i 's|PIDFILE=/var/run/cntlm|PIDFILE=$SNAP_DATA/run|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
-            sed -i 's|/etc/default/rcS|$SNAP_COMMON/etc/default/rcS|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
-            sed -i 's|/etc/default/cntlm|$SNAP_COMMON/etc/default/cntlm|g' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
-            sed -i '/DAEMON_OPTS="$DAEMON_OPTS/a DAEMON_OPTS="$DAEMON_OPTS -v -c $SNAP_COMMON/etc/cntlm.conf"' $SNAPCRAFT_PART_INSTALL/etc/init.d/cntlm
-        prime:
-            - -usr/bin/dpkg*
-            - -usr/share
-            - -var
+  proxy:
+    plugin: nil
+    stage-packages:
+      - cntlm
+      - dpkg
+    override-build: |
+      sed -i 's|PATH=|PATH=$PATH:|g' ${CRAFT_PART_INSTALL}/etc/init.d/cntlm
+      sed -i 's|DAEMON=|DAEMON=$SNAP|g' ${CRAFT_PART_INSTALL}/etc/init.d/cntlm
+      sed -i 's|PIDFILE=/var/run/cntlm|PIDFILE=$SNAP_DATA/run|g' ${CRAFT_PART_INSTALL}/etc/init.d/cntlm
+      sed -i 's|/etc/default/rcS|$SNAP_COMMON/etc/default/rcS|g' ${CRAFT_PART_INSTALL}/etc/init.d/cntlm
+      sed -i 's|/etc/default/cntlm|$SNAP_COMMON/etc/default/cntlm|g' ${CRAFT_PART_INSTALL}/etc/init.d/cntlm
+      sed -i '/DAEMON_OPTS="$DAEMON_OPTS/a DAEMON_OPTS="$DAEMON_OPTS -v -c $SNAP_COMMON/etc/cntlm.conf"' ${CRAFT_PART_INSTALL}/etc/init.d/cntlm
+      version=$(basename $(ls ${CRAFT_PART_BUILD}/../stage_packages/cntlm_*.deb) | sed 's/^[^_]*_\([^_]*\)_.*/\1/')
+      craftctl set version="${version}"
+    prime:
+      - -usr/bin/dpkg*
+      - -usr/share
+      - -var
